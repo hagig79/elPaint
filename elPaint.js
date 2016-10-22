@@ -6,7 +6,7 @@
     var context;
     // スポイト
     var dropperFlag = false;
-    jQuery.fn.elpaint = function() {
+    jQuery.fn.elPaint = function() {
         var canvas = document.createElement('canvas');
         $(canvas).attr('width', 300).attr('height', 300);
         context = canvas.getContext("2d");
@@ -30,7 +30,6 @@
                     context.closePath();
                     oldX = e.clientX - p.left;
                     oldY = e.clientY - p.top;
-                console.log(e.pressure);
                 }
             });
         } else {
@@ -39,7 +38,6 @@
                 oldX = e.clientX - p.left;
                 oldY = e.clientY - p.top;
                 down = true;
-                console.log(e);
             });
             $(canvas).mousemove(function(e) {
                 if (down) {
