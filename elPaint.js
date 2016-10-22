@@ -4,60 +4,73 @@
     var oldX;
     var oldY;
     var context;
-    // スポイト
-    var dropperFlag = false;
-    jQuery.fn.elPaint = function() {
+    jQuery.fn.elPaint = function(el) {
         var canvas = document.createElement('canvas');
-        $(canvas).attr('width', 300).attr('height', 300);
+        var width = $(this).width();
+        var height = $(this).height();
+        $(canvas).attr('width', width).attr('height', height);
         context = canvas.getContext("2d");
         
+        var _start = '';
+        var _move = '';
+        var _end = '';
         if (window.PointerEvent) {
-            canvas.addEventListener('pointerdown', function(e) {
-                var p = $(canvas).position();
-                oldX = e.clientX - p.left;
-                oldY = e.clientY - p.top;
-                down = true;
-            });
-            canvas.addEventListener('pointermove', function(e) {
-                if (down) {
-                    var p = $(canvas).position();
-                    context.beginPath();
-                    context.lineJoin = context.lineCap = 'round';
-                    context.lineWidth = e.pressure * 10;
-                    context.moveTo(oldX, oldY);
-                    context.lineTo(e.clientX - p.left, e.clientY - p.top);
-                    context.stroke();
-                    context.closePath();
-                    oldX = e.clientX - p.left;
-                    oldY = e.clientY - p.top;
-                }
-            });
+            _start = 'pointerdown';
+            _move = 'pointermove';
+            _end = 'pointerup';
+        } else if ('ontouchstart' in window) {
+            _start = 'touchstart';
+            _move = 'touchmove';
+            _end = 'touchend';
         } else {
-            $(canvas).mousedown(function(e) {
-                var p = $(canvas).position();
-                oldX = e.clientX - p.left;
-                oldY = e.clientY - p.top;
-                down = true;
-            });
-            $(canvas).mousemove(function(e) {
-                if (down) {
-                    var p = $(canvas).position();
-                    context.beginPath();
-                    context.lineJoin = context.lineCap = 'round';
-                    context.moveTo(oldX, oldY);
-                    context.lineTo(e.clientX - p.left, e.clientY - p.top);
-                    context.stroke();
-                    context.closePath();
-                    oldX = e.clientX - p.left;
-                    oldY = e.clientY - p.top;
-                }
-            });
+            _start = 'mousedown';
+            _move = 'mousemove';
+            _end = 'mouseup';
         }
         
-        $(canvas).mouseup(function(e) {
-            down = false;
+        $(canvas).bind(_start, function(e) {
+            var p = $(canvas).position();
+            var event = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0] : e;
+            var x = event.clientX;
+            var y = event.clientY;
+            paintStart(x - p.left, y - p.top);
+            e.preventDefault();
         });
+        $(canvas).bind(_move, function(e) {
+            if (down) {
+                var p = $(canvas).position();
+                var event = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0] : e;
+                var x = event.clientX;
+                var y = event.clientY;
+                paintMove(x - p.left, y - p.top);
+            }
+            e.preventDefault();
+        });
+        $(canvas).bind(_end, function(e) {
+            paintEnd();
+        })
         
         this.append(canvas);
     };
+    
+    function paintStart(x, y) {
+        oldX = x;
+        oldY = y;
+        down = true;
+    }
+    
+    function paintMove(newX, newY) {
+        context.beginPath();
+        context.lineJoin = context.lineCap = 'round';
+        context.moveTo(oldX, oldY);
+        context.lineTo(newX, newY);
+        context.stroke();
+        context.closePath();
+        oldX = newX;
+        oldY = newY;
+    }
+    
+    function paintEnd() {
+        down = false;
+    }
 })(jQuery);
