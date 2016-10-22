@@ -14,10 +14,14 @@
         var _start = '';
         var _move = '';
         var _end = '';
+        var _enter = '';
+        var _out = '';
         if (window.PointerEvent) {
             _start = 'pointerdown';
             _move = 'pointermove';
             _end = 'pointerup';
+            _enter = 'pointerenter';
+            _out = 'pointerout';
         } else if ('ontouchstart' in window) {
             _start = 'touchstart';
             _move = 'touchmove';
@@ -26,6 +30,8 @@
             _start = 'mousedown';
             _move = 'mousemove';
             _end = 'mouseup';
+            _enter = 'mouseenter';
+            _out = 'mouseout';
         }
         
         $(canvas).bind(_start, function(e) {
@@ -36,6 +42,18 @@
             paintStart(x - p.left, y - p.top);
             e.preventDefault();
         });
+        if (_enter) {
+            $(canvas).bind(_enter, function(e) {
+                if (e.buttons > 0) {
+                    var p = $(canvas).position();
+                    var event = e.originalEvent.changedTouches ? e.originalEvent.changedTouches[0] : e;
+                    var x = event.clientX;
+                    var y = event.clientY;
+                    paintStart(x - p.left, y - p.top);
+                    e.preventDefault();
+                }
+            });
+        }
         $(canvas).bind(_move, function(e) {
             if (down) {
                 var p = $(canvas).position();
@@ -48,7 +66,12 @@
         });
         $(canvas).bind(_end, function(e) {
             paintEnd();
-        })
+        });
+        if (_out) {
+            $(canvas).bind(_out, function(e) {
+                paintEnd();
+            });
+        }
         
         this.append(canvas);
     };
