@@ -4,7 +4,7 @@
     var oldX;
     var oldY;
     var context;
-    jQuery.fn.elPaint = function(el) {
+    $.fn.elPaint = function() {
         var canvas = document.createElement('canvas');
         var width = $(this).width();
         var height = $(this).height();
@@ -72,8 +72,26 @@
                 paintEnd();
             });
         }
+        this.append($('<input name="tool" type="radio" value="pen" checked>pen</input>'));
+        this.append($('<input name="tool" type="radio" value="eraser">eraser</input>'));
+        $('input[name="tool"]').change(function() {
+            if ($(this).val() === 'pen') {
+                context.strokeStyle = 'rgb(0, 0, 0)';
+                context.lineWidth = 10;
+                context.globalCompositeOperation = 'source-over';
+                airbrush = false;
+            } else if ($(this).val() === 'eraser') {
+                context.lineWidth = 10;
+                context.globalCompositeOperation = 'destination-out';
+                airbrush = false;
+            }
+        });
+        context.strokeStyle = 'rgb(0, 0, 0)';
+        context.lineWidth = 10;
         
         this.append(canvas);
+        
+        return this;
     };
     
     function paintStart(x, y) {
