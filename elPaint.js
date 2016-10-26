@@ -4,11 +4,14 @@
     var oldX;
     var oldY;
     var context;
-    $.fn.elPaint = function() {
+    $.fn.elPaint = function(options) {
+    
+        options = $.extend(true, {}, defaults, options);
+        
         var canvas = document.createElement('canvas');
         var width = $(this).width();
         var height = $(this).height();
-        $(canvas).attr('width', width).attr('height', height);
+        $(canvas).attr('width', options.canvasWidth).attr('height', options.canvasHeight);
         context = canvas.getContext("2d");
         
         var _start = '';
@@ -22,6 +25,11 @@
             _end = 'pointerup';
             _enter = 'pointerenter';
             _out = 'pointerout';
+            if ('ontouchstart' in window) {
+                $(canvas).bind('touchmove', function(e) {
+                    e.preventDefault();
+                });
+            }
         } else if ('ontouchstart' in window) {
             _start = 'touchstart';
             _move = 'touchmove';
@@ -79,11 +87,9 @@
                 context.strokeStyle = 'rgb(0, 0, 0)';
                 context.lineWidth = 10;
                 context.globalCompositeOperation = 'source-over';
-                airbrush = false;
             } else if ($(this).val() === 'eraser') {
                 context.lineWidth = 10;
                 context.globalCompositeOperation = 'destination-out';
-                airbrush = false;
             }
         });
         context.strokeStyle = 'rgb(0, 0, 0)';
@@ -114,4 +120,10 @@
     function paintEnd() {
         down = false;
     }
+    
+    var defaults = {
+        canvasWidth: 400,
+        canvasHeight: 400
+    };
+    
 })(jQuery);

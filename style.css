@@ -1,0 +1,13 @@
+body {
+    user-select:none;
+    -webkit-user-select: none;
+}
+
+#paint canvas {
+    border: solid 1px;
+}
+
+input {
+    user-select:none;
+    -webkit-user-select: none;
+}
