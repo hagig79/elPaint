@@ -4,15 +4,15 @@
     var oldX;
     var oldY;
     var context;
+    var penSize;
+    var eraserSize;
     $.fn.elPaint = function(options) {
     
         options = $.extend(true, {}, defaults, options);
         
         var canvas = document.createElement('canvas');
-        var width = $(this).width();
-        var height = $(this).height();
         $(canvas).attr('width', options.canvasWidth).attr('height', options.canvasHeight);
-        context = canvas.getContext("2d");
+        context = canvas.getContext('2d');
         
         var _start = '';
         var _move = '';
@@ -72,11 +72,11 @@
             }
             e.preventDefault();
         });
-        $(canvas).bind(_end, function(e) {
+        $(canvas).bind(_end, function() {
             paintEnd();
         });
         if (_out) {
-            $(canvas).bind(_out, function(e) {
+            $(canvas).bind(_out, function() {
                 paintEnd();
             });
         }
@@ -85,15 +85,38 @@
         $('input[name="tool"]').change(function() {
             if ($(this).val() === 'pen') {
                 context.strokeStyle = 'rgb(0, 0, 0)';
-                context.lineWidth = 10;
+                context.lineWidth = penSize;
                 context.globalCompositeOperation = 'source-over';
+                $('#brush_size').val(penSize);
             } else if ($(this).val() === 'eraser') {
-                context.lineWidth = 10;
+                context.lineWidth = eraserSize;
                 context.globalCompositeOperation = 'destination-out';
+                $('#brush_size').val(eraserSize);
             }
         });
         context.strokeStyle = 'rgb(0, 0, 0)';
-        context.lineWidth = 10;
+        
+        let radio = $('<select>').attr('id', 'brush_size');
+        radio.append($('<option>').val(2).text(2));
+        radio.append($('<option>').val(5).text(5));
+        radio.append($('<option>').val(10).text(10));
+        radio.append($('<option>').val(20).text(20));
+        radio.append($('<option>').val(30).text(30));
+        radio.change(function() {
+            let tool = $('input[name="tool"]:checked').val();
+            if(tool === 'pen') {
+                penSize = $(this).val();
+                context.lineWidth = penSize;
+            } else if(tool === 'eraser') {
+                eraserSize = $(this).val();
+                context.lineWidth = eraserSize;
+            }
+        });
+        this.append(radio);
+        penSize = 10;
+        eraserSize = 10;
+        context.lineWidth = penSize;
+        $('#brush_size').val(penSize);
         
         this.append(canvas);
         
